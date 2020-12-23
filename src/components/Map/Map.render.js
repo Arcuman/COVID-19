@@ -1,4 +1,12 @@
-import { MAP_OPTIONS, MAP_LAYER_OPTIONS, WORLD_MAP_URL, MAP_DIV_ID, LEGEND_TITLE } from './map';
+import {
+    MAP_OPTIONS,
+    MAP_LAYER_OPTIONS,
+    WORLD_MAP_URL,
+    MAP_DIV_ID,
+    LEGEND_TITLE,
+    RELATIVE_AMOUNT_LEGEND
+} from './map';
+import { RELATIVE } from '@/services/filterTypes';
 import { createHtmlElement } from '@/helpers/utils';
 import { onEachFeature, getLegendText } from './Map.service';
 import { store } from '@/redux/store';
@@ -31,8 +39,13 @@ const renderWorldMapLayer = () => {
 };
 
 const getLegendPrefix = () => {
+    const state = store.getState().country;
+    const type = state.casesType;
+    const additionalHeader =
+        state.valueType === RELATIVE ? `<div>${RELATIVE_AMOUNT_LEGEND}</div>` : '';
     return `<div class="legend">
-                ${LEGEND_TITLE}
+                <h3>${LEGEND_TITLE} ${type} ${additionalHeader}</h3>
+
                 <div class="legend-info">${getLegendText()}</div>
             </div>`;
 };
@@ -60,9 +73,7 @@ const renderMapElement = async (mapEl) => {
 export const renderMapContainer = (mainEl) => {
     const mapEl = createHtmlElement('div');
     mapEl.setAttribute('id', MAP_DIV_ID);
-    const fullscreenBtn = createHtmlElement('div', 'full-screen');
-    fullscreenBtn.innerHTML = `<img width="15" height="15" src=${FULL_SCREEN} alt="fullscreen"/>`;
-    mapEl.appendChild(fullscreenBtn);
+
     mainEl.insertAdjacentElement('afterbegin', mapEl);
 
     renderMapElement(mapEl);
@@ -73,11 +84,39 @@ export const loadMap = async () => {
         countriesLayer.remove();
     }
     countriesLayer = renderCountriesPoligonLayer().addTo(map);
+
     legend.setPrefix(getLegendPrefix());
 };
 
-store.subscribe(() => {
+store.subscribe(async () => {
     const mapEl = document.body.querySelector(`#${MAP_DIV_ID}`);
+    const fullscreen = mapEl.querySelector('.full-screen');
+    const filter = mapEl.querySelector('.filter');
+    if (fullscreen) {
+        fullscreen.remove();
+    }
+    if (filter) {
+        filter.remove();
+    }
+    const fullscreenBtn = createHtmlElement('div', 'full-screen');
+    fullscreenBtn.innerHTML = `<img width="15" height="15" src=${FULL_SCREEN} alt="fullscreen"/>`;
+    fullscreenBtn.addEventListener('click', (e) => {
+        // eslint-disable-next-line no-restricted-globals
+        window.scrollTo(pageXOffset, 0);
+        const selector = e.target.closest('div').id;
+        const fullscreens = document.body.querySelectorAll('.full-screen');
+        fullscreens.forEach((item) => {
+            if (item.id !== selector) item.classList.toggle('hidden');
+        });
+        const section = document.querySelector('#map');
+        section.style.margin = section.style.position === 'absolute' ? '1rem' : 0;
+        section.style.position = section.style.position === 'absolute' ? 'relative' : 'absolute';
+
+        section.classList.toggle('fullscreen');
+        document.body.classList.toggle('no-scroll');
+        map.invalidateSize(true);
+    });
+    mapEl.appendChild(fullscreenBtn);
+    await loadMap();
     mapEl.appendChild(renderFilter());
-    loadMap();
 });
