@@ -1,0 +1,83 @@
+.countries-list-wrapper{
+  position: relative;
+  background: $primary-color-light;
+  padding: 5px;
+  @include border;
+  @include shadow;
+  @include flex(column);
+  flex: 0 0 auto;
+  margin: 1rem;
+  height: 35rem;
+  .filter{
+    position: unset;
+    align-self: flex-end;
+    padding:1.5rem 0;
+  }
+}
+.list--search-wrapper{
+  width: 100%;
+  @include flex(row,space-between, center);
+  height: 10%;
+  flex: 0 0 auto;
+  margin-bottom: 5px;
+}
+.list--search-search{
+  @include flex(row,space-between, center);
+  flex: 1 0 auto;
+  @include border;
+  @include shadow;
+  height: 100%;
+  padding-left:3.5rem;
+  background: transparent;
+}
+.list--search-filter{
+  height: 100%;
+  padding-left: 0.5rem;
+  @include flex(row,space-between, center);
+  flex: 0 0 auto;
+  margin-left: 5px;
+}
+.countries-list-container{
+  height: 70%;
+  overflow: auto;
+  @include border;
+  @include shadow;
+  @include flex(column,flex-start,center);
+  flex: 1 0 auto;
+  width: 100%;
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+.countries-list{
+  width: 100%;
+  li{
+    padding-bottom: 0.5rem;
+    margin: 0.5rem;
+    border-bottom: solid 2px black;
+    div{
+      @include flex(row,start,center);
+      span{
+        margin-left: 0.5rem;
+      }
+      &:hover{
+        cursor: pointer;
+        background: $primary-color;
+      }
+    }
+  }
+  .active{
+    background: $primary-color-light;
+    opacity: 0.5;
+    div{
+      &:hover{
+        cursor: default;
+        background: $primary-color-light;
+      }
+    }
+  }
+}
+
+.hidden{
+  display: none;
+}
+
